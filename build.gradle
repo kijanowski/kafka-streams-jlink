@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.beryx.jlink' version '2.4.1'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.apache.kafka:kafka-streams:2.3.0'
+
+    compile 'org.slf4j:slf4j-api:1.8.0-beta4'
+    compile 'org.slf4j:slf4j-simple:1.8.0-beta4'
+
+    testImplementation 'junit:junit:4.12'
+
+}
+
+targetCompatibility = '12'
+sourceCompatibility = '12'
+
+mainClassName = 'ks.jlink.App'
+
+ext {
+    moduleName = 'ks.jlink'
+    moduleLaunchPoint = 'ks.jlink.App'
+}
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+              '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ks.jlink.App'
+    }
+}
+
+jlink {
+    mergedModule {
+        requires 'org.slf4j'
+        requires 'java.management'
+    }
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher{
+        name = 'start'
+    }
+}

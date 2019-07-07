@@ -1,0 +1,17 @@
+FROM gradle:5.5.0-jdk12 as build
+
+WORKDIR /app
+
+COPY build.gradle .
+COPY src src
+COPY settings.gradle .
+
+RUN gradle fatJar
+
+#####################################
+FROM openjdk:12-alpine
+
+COPY --from=build /app/build/libs/kafka-streams-regular.jar /app/build/libs/kafka-streams-regular.jar
+
+ENTRYPOINT ["java", "-jar"]
+CMD ["/app/build/libs/kafka-streams-regular.jar"]
